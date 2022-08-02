@@ -18,7 +18,8 @@ create table if not exists event_alcoholic
     alcoholic_id uuid    not null,
     is_banned    boolean not null,
     version      integer not null default 1,
-    foreign key (event_id) references event (id)
+    foreign key (event_id) references event (id),
+    unique (alcoholic_id, event_id)
 );
 
 create table if not exists event_photo

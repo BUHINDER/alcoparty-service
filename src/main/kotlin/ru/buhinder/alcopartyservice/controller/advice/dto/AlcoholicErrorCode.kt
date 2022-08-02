@@ -8,4 +8,5 @@ enum class AlcoholicErrorCode : ErrorCode {
     CANNOT_BE_DEACTIVATED,
     NOT_FOUND,
     ALREADY_EXISTS,
+    CANNOT_JOIN,
 }

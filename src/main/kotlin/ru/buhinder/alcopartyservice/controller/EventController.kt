@@ -2,7 +2,9 @@ package ru.buhinder.alcopartyservice.controller
 
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -27,6 +29,13 @@ class EventController(
         principal: Principal,
     ): Mono<ResponseEntity<EventResponse>> {
         return eventService.create(dto, UUID.fromString(principal.name))
+            .map { ResponseEntity.ok(it) }
+    }
+
+    @PutMapping("/{id}")
+    fun join(@PathVariable id: UUID, principal: Principal): Mono<ResponseEntity<EventResponse>> {
+        return eventService.join(eventId = id, alcoholicId = UUID.fromString(principal.name))
+            .map { EventResponse(it) }
             .map { ResponseEntity.ok(it) }
     }
 

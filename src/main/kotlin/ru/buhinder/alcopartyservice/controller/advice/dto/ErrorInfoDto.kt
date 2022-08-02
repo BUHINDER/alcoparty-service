@@ -1,7 +1,7 @@
 package ru.buhinder.alcopartyservice.controller.advice.dto
 
-import ru.buhinder.alcopartyservice.controller.advice.exception.AlcoholicApiException
 import ru.buhinder.alcopartyservice.controller.advice.dto.AlcoholicErrorCode.UNKNOWN_EXCEPTION
+import ru.buhinder.alcopartyservice.controller.advice.exception.AlcoholicApiException
 
 data class ErrorInfoDto(
     val code: ErrorCode,
