@@ -1,13 +1,14 @@
 create table if not exists event
 (
-    id         uuid primary key default gen_random_uuid(),
-    info       text,
-    type       varchar not null,
-    location   varchar not null,
-    status     varchar not null,
-    start_date bigint  not null,
-    end_date   bigint,
-    version    integer not null default 1
+    id            uuid primary key default gen_random_uuid(),
+    info          text,
+    type          varchar not null,
+    location      varchar not null,
+    status        varchar not null,
+    start_date    bigint  not null,
+    end_date      bigint,
+    event_creator uuid    not null,
+    version       integer not null default 1
 );
 
 create table if not exists event_alcoholic

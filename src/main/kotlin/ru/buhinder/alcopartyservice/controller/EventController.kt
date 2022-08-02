@@ -10,9 +10,11 @@ import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
 import ru.buhinder.alcopartyservice.service.EventService
+import java.security.Principal
+import java.util.UUID
 
 @RestController
-@RequestMapping("/api/alcoholic/event")
+@RequestMapping("/api/alcoparty/event")
 class EventController(
     private val eventService: EventService,
 ) {
@@ -22,8 +24,9 @@ class EventController(
         @Valid
         @RequestBody
         dto: EventDto,
+        principal: Principal,
     ): Mono<ResponseEntity<EventResponse>> {
-        return eventService.create(dto)
+        return eventService.create(dto, UUID.fromString(principal.name))
             .map { ResponseEntity.ok(it) }
     }
 

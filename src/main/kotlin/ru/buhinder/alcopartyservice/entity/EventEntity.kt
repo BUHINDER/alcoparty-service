@@ -14,4 +14,5 @@ open class EventEntity(
     val status: EventStatus,
     val startDate: Long,
     val endDate: Long? = null,
+    val eventCreator: UUID,
 ) : AbstractAuditable(id)
