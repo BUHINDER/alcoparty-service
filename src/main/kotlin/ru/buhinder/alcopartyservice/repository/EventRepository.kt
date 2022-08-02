@@ -19,8 +19,9 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
                             from event_alcoholic
                             where alcoholic_id = :alcoholicId
                               and is_banned)
+                and ev.type != 'PRIVATE'
         """
     )
-    fun findAllAndAlcoholicIsNotBanned(alcoholicId: UUID): Flux<EventEntity>
+    fun findAllNotPrivateAndAlcoholicIsNotBanned(alcoholicId: UUID): Flux<EventEntity>
 
 }

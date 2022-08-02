@@ -36,8 +36,8 @@ class EventDaoFacade(
             }
     }
 
-    fun getAllAndStatusIsNotPrivate(alcoholicId: UUID): Flux<EventEntity> {
-        return eventRepository.findAllAndAlcoholicIsNotBanned(alcoholicId)
+    fun findAllNotPrivateAndAlcoholicIsNotBanned(alcoholicId: UUID): Flux<EventEntity> {
+        return eventRepository.findAllNotPrivateAndAlcoholicIsNotBanned(alcoholicId)
     }
 
 }

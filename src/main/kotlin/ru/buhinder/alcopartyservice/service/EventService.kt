@@ -42,7 +42,7 @@ class EventService(
     }
 
     fun get(alcoholicId: UUID): Flux<EventResponse> {
-        return eventDaoFacade.getAllAndStatusIsNotPrivate(alcoholicId)
+        return eventDaoFacade.findAllNotPrivateAndAlcoholicIsNotBanned(alcoholicId)
             .map { conversionService.convert(it, EventResponse::class.java)!! }
     }
 
