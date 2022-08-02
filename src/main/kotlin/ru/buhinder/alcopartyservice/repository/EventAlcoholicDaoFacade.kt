@@ -13,7 +13,7 @@ import java.util.UUID
 @Repository
 class EventAlcoholicDaoFacade(
     private val r2dbcEntityOperations: R2dbcEntityOperations,
-    private val eventAlcoholicReactiveCrudRepository: EventAlcoholicReactiveCrudRepository,
+    private val eventAlcoholicRepository: EventAlcoholicRepository,
 ) {
     private val logger by LoggerDelegate()
 
@@ -22,7 +22,7 @@ class EventAlcoholicDaoFacade(
     }
 
     fun insertAll(alcoholics: List<EventAlcoholicEntity>): Mono<List<EventAlcoholicEntity>> {
-        return eventAlcoholicReactiveCrudRepository.saveAll(alcoholics)
+        return eventAlcoholicRepository.saveAll(alcoholics)
             .collectList()
             .map { it.toList() }
     }

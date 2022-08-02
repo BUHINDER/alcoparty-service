@@ -3,7 +3,7 @@ package ru.buhinder.alcopartyservice.service.strategy
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.dto.EventDto
-import ru.buhinder.alcopartyservice.dto.response.EventResponse
+import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
 import ru.buhinder.alcopartyservice.entity.enums.EventType
 import ru.buhinder.alcopartyservice.entity.enums.EventType.PUBLIC
@@ -20,15 +20,15 @@ class PublicEventStrategy(
     private val eventValidationService: EventValidationService,
 ) : EventStrategy {
 
-    override fun create(dto: EventDto, eventCreator: UUID): Mono<EventResponse> {
+    override fun create(dto: EventDto, eventCreator: UUID): Mono<IdResponse> {
         return eventCreatorDelegate.create(dto, eventCreator)
     }
 
-    override fun join(eventId: UUID, alcoholicId: UUID): Mono<UUID> {
+    override fun join(eventId: UUID, alcoholicId: UUID): Mono<IdResponse> {
         return eventAlcoholicValidationService.validateAlcoholicIsNotAlreadyParticipating(eventId, alcoholicId)
             .flatMap { eventValidationService.validateEventIsActive(eventId) }
             .flatMap { eventAlcoholicDaoFacade.insert(EventAlcoholicEntity(UUID.randomUUID(), eventId, alcoholicId)) }
-            .map { it.eventId }
+            .map { IdResponse(it.eventId) }
     }
 
     override fun getEventType(): EventType {

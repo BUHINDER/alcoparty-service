@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import ru.buhinder.alcopartyservice.dto.EventDto
-import ru.buhinder.alcopartyservice.dto.response.EventResponse
+import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
 import ru.buhinder.alcopartyservice.entity.EventEntity
 import ru.buhinder.alcopartyservice.entity.EventPhotoEntity
@@ -24,7 +24,7 @@ class EventCreatorDelegate(
     private val eventPhotoDaoFacade: EventPhotoDaoFacade,
 ) {
 
-    fun create(dto: EventDto, eventCreator: UUID): Mono<EventResponse> {
+    fun create(dto: EventDto, eventCreator: UUID): Mono<IdResponse> {
         val eventModel = EventModel(dto, eventCreator)
         val entity = conversionService.convert(eventModel, EventEntity::class.java)!!
         val alcoholics = dto.alcoholicsIds
@@ -39,6 +39,6 @@ class EventCreatorDelegate(
                     .flatMap { eventPhotoDaoFacade.insertAll(photos) }
                     .map { savedEntity }
             }
-            .map { EventResponse(it.id!!) }
+            .map { IdResponse(it.id!!) }
     }
 }

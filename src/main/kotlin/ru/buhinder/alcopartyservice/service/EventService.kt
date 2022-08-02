@@ -1,10 +1,13 @@
 package ru.buhinder.alcopartyservice.service
 
+import org.springframework.core.convert.ConversionService
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
 import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
+import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.repository.EventDaoFacade
 import ru.buhinder.alcopartyservice.service.strategy.EventStrategyRegistry
 import java.util.UUID
@@ -13,14 +16,15 @@ import java.util.UUID
 class EventService(
     private val eventStrategyRegistry: EventStrategyRegistry,
     private val eventDaoFacade: EventDaoFacade,
+    private val conversionService: ConversionService,
 ) {
 
-    fun create(dto: EventDto, eventCreator: UUID): Mono<EventResponse> {
+    fun create(dto: EventDto, eventCreator: UUID): Mono<IdResponse> {
         return eventStrategyRegistry.get(dto.type)
             .flatMap { it.create(dto, eventCreator) }
     }
 
-    fun join(eventId: UUID, alcoholicId: UUID): Mono<UUID> {
+    fun join(eventId: UUID, alcoholicId: UUID): Mono<IdResponse> {
         return eventDaoFacade.getById(eventId)
             .flatMap { event ->
                 if (event.eventCreator == alcoholicId) {
@@ -35,6 +39,11 @@ class EventService(
                         .flatMap { it.join(eventId = eventId, alcoholicId = alcoholicId) }
                 }
             }
+    }
+
+    fun get(alcoholicId: UUID): Flux<EventResponse> {
+        return eventDaoFacade.getAllAndStatusIsNotPrivate(alcoholicId)
+            .map { conversionService.convert(it, EventResponse::class.java)!! }
     }
 
 }

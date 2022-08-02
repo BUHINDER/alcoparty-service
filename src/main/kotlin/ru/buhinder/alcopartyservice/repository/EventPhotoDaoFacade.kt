@@ -8,7 +8,7 @@ import ru.buhinder.alcopartyservice.entity.EventPhotoEntity
 @Repository
 class EventPhotoDaoFacade(
     private val r2dbcEntityOperations: R2dbcEntityOperations,
-    private val eventPhotoReactiveCrudRepository: EventPhotoReactiveCrudRepository,
+    private val eventPhotoRepository: EventPhotoRepository,
 ) {
 
     fun insert(eventPhotoEntity: EventPhotoEntity): Mono<EventPhotoEntity> {
@@ -16,7 +16,7 @@ class EventPhotoDaoFacade(
     }
 
     fun insertAll(photos: List<EventPhotoEntity>): Mono<List<EventPhotoEntity>> {
-        return eventPhotoReactiveCrudRepository.saveAll(photos)
+        return eventPhotoRepository.saveAll(photos)
             .collectList()
             .map { it.toList() }
     }

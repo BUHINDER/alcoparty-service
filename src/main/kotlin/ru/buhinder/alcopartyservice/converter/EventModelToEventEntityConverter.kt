@@ -10,7 +10,7 @@ import java.time.Instant
 import java.util.UUID
 
 @Component
-class EventDtoToEventEntityConverter : Converter<EventModel, EventEntity> {
+class EventModelToEventEntityConverter : Converter<EventModel, EventEntity> {
 
     override fun convert(source: EventModel): EventEntity {
         val eventDto = source.eventDto
