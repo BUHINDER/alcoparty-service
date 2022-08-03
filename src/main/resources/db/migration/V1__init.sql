@@ -31,3 +31,13 @@ create table if not exists event_photo
     version  integer not null default 1,
     foreign key (event_id) references event (id)
 );
+
+create table if not exists invitation_link
+(
+    id           uuid primary key default gen_random_uuid(),
+    event_id     uuid    not null,
+    usage_amount integer not null default 1,
+    expires_at   bigint  not null,
+    version      integer not null default 1,
+    foreign key (event_id) references event (id)
+);

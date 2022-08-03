@@ -44,4 +44,8 @@ class EventDaoFacade(
         return eventRepository.findByIdAndNotPrivateAndAlcoholicIsNotBanned(eventId, alcoholicId)
     }
 
+    fun findByIdAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity> {
+        return eventRepository.findByIdAndAlcoholicIsNotBanned(eventId, alcoholicId)
+    }
+
 }

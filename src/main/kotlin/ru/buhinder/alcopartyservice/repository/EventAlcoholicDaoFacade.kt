@@ -44,4 +44,11 @@ class EventAlcoholicDaoFacade(
             .doOnError { logger.info("Error retrieving alcoholic with id $alcoholicId for event with id $eventId") }
     }
 
+    fun findByEventIdAndAlcoholicIdAndIsBannedIsFalse(eventId: UUID, alcoholicId: UUID): Mono<EventAlcoholicEntity> {
+        return eventAlcoholicRepository.findByEventIdAndAlcoholicIdAndIsBannedIsFalse(
+            eventId = eventId,
+            alcoholicId = alcoholicId
+        )
+    }
+
 }

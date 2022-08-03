@@ -48,4 +48,20 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
     )
     fun findByIdAndNotPrivateAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity>
 
+    @Query(
+        """
+            select *
+            from event e
+            where e.id = (select e.id
+                            from event e
+                            where e.id = :eventId
+                            except
+                            select event_id
+                            from event_alcoholic
+                            where alcoholic_id = :alcoholicId
+                              and is_banned)
+        """
+    )
+    fun findByIdAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity>
+
 }
