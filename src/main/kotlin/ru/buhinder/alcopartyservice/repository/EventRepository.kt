@@ -13,6 +13,13 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
         """
             select *
             from event ev
+            where ev.id in (select event_id
+                            from event_alcoholic
+                            where alcoholic_id = :alcoholicId
+                              and is_banned = false)
+            union distinct
+            select *
+            from event ev
             where ev.id in (select e.id
                             from event e
                             except
@@ -20,7 +27,7 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
                             from event_alcoholic
                             where alcoholic_id = :alcoholicId
                               and is_banned)
-                and ev.type != 'PRIVATE'
+            and ev.type != 'PRIVATE'
         """
     )
     fun findAllNotPrivateAndAlcoholicIsNotBanned(alcoholicId: UUID): Flux<EventEntity>
@@ -32,7 +39,6 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
             where e.id = (select e.id
                             from event e
                             where e.id = :eventId
-                              and e.type != 'PRIVATE'
                             except
                             select event_id
                             from event_alcoholic
