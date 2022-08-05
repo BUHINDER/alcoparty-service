@@ -12,5 +12,5 @@ data class EventResponse(
     val status: EventStatus,
     val startDate: Long,
     val endDate: Long? = null,
-    val eventCreator: UUID,
+    val createdBy: UUID,
 )

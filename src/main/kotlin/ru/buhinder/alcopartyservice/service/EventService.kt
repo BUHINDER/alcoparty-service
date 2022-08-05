@@ -21,15 +21,15 @@ class EventService(
     private val conversionService: ConversionService,
 ) {
 
-    fun create(dto: EventDto, eventCreator: UUID): Mono<IdResponse> {
+    fun create(dto: EventDto, alcoholicId: UUID): Mono<IdResponse> {
         return eventStrategyRegistry.get(dto.type)
-            .flatMap { it.create(dto, eventCreator) }
+            .flatMap { it.create(dto, alcoholicId) }
     }
 
     fun join(eventId: UUID, alcoholicId: UUID): Mono<IdResponse> {
         return eventDaoFacade.getById(eventId)
             .flatMap { event ->
-                if (event.eventCreator == alcoholicId) {
+                if (event.createdBy == alcoholicId) {
                     return@flatMap Mono.error(
                         CannotJoinEventException(
                             message = "You cannot join your own event",

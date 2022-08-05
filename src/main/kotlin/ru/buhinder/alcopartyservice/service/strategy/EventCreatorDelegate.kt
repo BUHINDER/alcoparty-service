@@ -24,20 +24,20 @@ class EventCreatorDelegate(
     private val eventPhotoDaoFacade: EventPhotoDaoFacade,
 ) {
 
-    fun create(dto: EventDto, eventCreator: UUID): Mono<IdResponse> {
-        val eventModel = EventModel(dto, eventCreator)
+    fun create(dto: EventDto, alcoholicId: UUID): Mono<IdResponse> {
+        val eventModel = EventModel(dto, alcoholicId)
         val entity = conversionService.convert(eventModel, EventEntity::class.java)!!
         val alcoholics = dto.alcoholicsIds
-            .plus(eventCreator)
+            .plus(alcoholicId)
             .map { EventAlcoholicEntity(eventId = entity.id!!, alcoholicId = it) }
-        val photos =
-            dto.photosIds.map { EventPhotoEntity(eventId = entity.id!!, photoId = it, type = PhotoType.ACTIVE) }
+        val photos = dto.photosIds
+            .map { EventPhotoEntity(eventId = entity.id!!, photoId = it, type = PhotoType.ACTIVE) }
         return entity.toMono()
-            .flatMap { savedEntity ->
-                eventDaoFacade.insert(savedEntity)
+            .flatMap { eventEntity ->
+                eventDaoFacade.insert(eventEntity)
                     .flatMap { eventAlcoholicDaoFacade.insertAll(alcoholics) }
                     .flatMap { eventPhotoDaoFacade.insertAll(photos) }
-                    .map { savedEntity }
+                    .map { eventEntity }
             }
             .map { IdResponse(it.id!!) }
     }

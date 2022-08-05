@@ -5,5 +5,5 @@ import java.util.UUID
 
 data class EventModel(
     val eventDto: EventDto,
-    val eventCreator: UUID,
+    val alcoholicId: UUID,
 )
