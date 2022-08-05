@@ -13,17 +13,16 @@ import java.util.UUID
 class EventModelToEventEntityConverter : Converter<EventModel, EventEntity> {
 
     override fun convert(source: EventModel): EventEntity {
-        val eventDto = source.eventDto
-        val eventCreator = source.eventCreator
+        val eventModel = source.eventDto
         return EventEntity(
             id = UUID.randomUUID(),
-            info = eventDto.info,
-            type = eventDto.type,
-            location = eventDto.location,
-            status = if (eventDto.startDate > Instant.now().toEpochMilli()) SCHEDULED else ACTIVE,
-            startDate = eventDto.startDate,
-            endDate = eventDto.endDate,
-            eventCreator = eventCreator,
+            info = eventModel.info,
+            type = eventModel.type,
+            location = eventModel.location,
+            status = if (eventModel.startDate > Instant.now().toEpochMilli()) SCHEDULED else ACTIVE,
+            startDate = eventModel.startDate,
+            endDate = eventModel.endDate,
+            createdBy = source.alcoholicId,
         )
     }
 

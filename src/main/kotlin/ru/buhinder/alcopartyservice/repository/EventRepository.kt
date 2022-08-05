@@ -60,8 +60,20 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
                             from event_alcoholic
                             where alcoholic_id = :alcoholicId
                               and is_banned)
+                and e.status != 'ENDED'
         """
     )
-    fun findByIdAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity>
+    fun findByIdAndAlcoholicIsNotBannedAndStatusNotEnded(eventId: UUID, alcoholicId: UUID): Mono<EventEntity>
+
+    @Query(
+        """
+            select e.*
+            from event e
+                join invitation_link il on e.id = il.event_id
+            where il.id = :invitationLink
+            and e.status != 'ENDED'
+        """
+    )
+    fun findByInvitationLinkAndNotEnded(invitationLink: UUID): Mono<EventEntity>
 
 }

@@ -16,6 +16,9 @@ class EventDaoFacade(
     private val r2dbcEntityOperations: R2dbcEntityOperations,
     private val eventRepository: EventRepository,
 ) {
+    companion object {
+        const val NOT_FOUND_MESSAGE = "Event not found"
+    }
 
     fun insert(eventEntity: EventEntity): Mono<EventEntity> {
         return r2dbcEntityOperations.insert(eventEntity)
@@ -29,7 +32,7 @@ class EventDaoFacade(
             .switchIfEmpty {
                 Mono.error(
                     EntityNotFoundException(
-                        message = "Event not found",
+                        message = NOT_FOUND_MESSAGE,
                         payload = mapOf("id" to eventId)
                     )
                 )
@@ -44,8 +47,28 @@ class EventDaoFacade(
         return eventRepository.findByIdAndNotPrivateAndAlcoholicIsNotBanned(eventId, alcoholicId)
     }
 
-    fun findByIdAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity> {
-        return eventRepository.findByIdAndAlcoholicIsNotBanned(eventId, alcoholicId)
+    fun getByIdAndAlcoholicIsNotBannedAndStatusNotEnded(eventId: UUID, alcoholicId: UUID): Mono<EventEntity> {
+        return eventRepository.findByIdAndAlcoholicIsNotBannedAndStatusNotEnded(eventId, alcoholicId)
+            .switchIfEmpty {
+                Mono.error(
+                    EntityNotFoundException(
+                        message = NOT_FOUND_MESSAGE,
+                        payload = mapOf("id" to eventId)
+                    )
+                )
+            }
+    }
+
+    fun getByInvitationLinkAndNotEnded(invitationLink: UUID): Mono<EventEntity> {
+        return eventRepository.findByInvitationLinkAndNotEnded(invitationLink)
+            .switchIfEmpty {
+                Mono.error(
+                    EntityNotFoundException(
+                        message = NOT_FOUND_MESSAGE,
+                        payload = emptyMap()
+                    )
+                )
+            }
     }
 
 }

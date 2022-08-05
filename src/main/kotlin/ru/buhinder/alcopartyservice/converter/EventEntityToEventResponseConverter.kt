@@ -17,7 +17,7 @@ class EventEntityToEventResponseConverter : Converter<EventEntity, EventResponse
             status = source.status,
             startDate = source.startDate,
             endDate = source.endDate,
-            eventCreator = source.eventCreator,
+            createdBy = source.createdBy,
         )
     }
 

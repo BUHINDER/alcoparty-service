@@ -3,6 +3,7 @@ package ru.buhinder.alcopartyservice.entity
 import org.springframework.data.relational.core.mapping.Table
 import ru.buhinder.alcopartyservice.entity.enums.EventStatus
 import ru.buhinder.alcopartyservice.entity.enums.EventType
+import java.time.Instant
 import java.util.UUID
 
 @Table("event")
@@ -14,5 +15,6 @@ open class EventEntity(
     val status: EventStatus,
     val startDate: Long,
     val endDate: Long? = null,
-    val eventCreator: UUID,
+    private val createdAt: Long? = Instant.now().toEpochMilli(),
+    val createdBy: UUID,
 ) : AbstractAuditable(id)

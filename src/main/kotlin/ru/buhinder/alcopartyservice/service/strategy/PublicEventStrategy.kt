@@ -20,8 +20,8 @@ class PublicEventStrategy(
     private val eventValidationService: EventValidationService,
 ) : EventStrategy {
 
-    override fun create(dto: EventDto, eventCreator: UUID): Mono<IdResponse> {
-        return eventCreatorDelegate.create(dto, eventCreator)
+    override fun create(dto: EventDto, alcoholicId: UUID): Mono<IdResponse> {
+        return eventCreatorDelegate.create(dto, alcoholicId)
     }
 
     override fun join(eventId: UUID, alcoholicId: UUID): Mono<IdResponse> {
