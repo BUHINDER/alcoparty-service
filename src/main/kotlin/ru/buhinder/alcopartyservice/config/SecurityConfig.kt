@@ -2,6 +2,7 @@ package ru.buhinder.alcopartyservice.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder.AUTHENTICATION
 import org.springframework.security.config.web.server.ServerHttpSecurity
@@ -35,6 +36,11 @@ class SecurityConfig {
             .formLogin().disable()
             .logout().disable()
             .cors()
+
+            .and()
+
+            .authorizeExchange()
+            .pathMatchers(HttpMethod.OPTIONS).permitAll()
 
             .and()
 
