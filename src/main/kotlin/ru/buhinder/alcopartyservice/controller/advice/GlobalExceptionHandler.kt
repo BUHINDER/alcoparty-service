@@ -48,7 +48,7 @@ class GlobalExceptionHandler {
             message = exception.cause?.message,
             payload = emptyMap()
         )
-        return ResponseEntity.status(exception.statusCode)
+        return ResponseEntity.status(exception.status)
             .body(apiErrorDto)
     }
 

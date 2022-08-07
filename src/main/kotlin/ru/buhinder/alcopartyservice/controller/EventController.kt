@@ -1,6 +1,5 @@
 package ru.buhinder.alcopartyservice.controller
 
-import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -16,6 +15,7 @@ import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.service.EventService
 import java.security.Principal
 import java.util.UUID
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/alcoparty/event")
