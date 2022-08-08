@@ -1,6 +1,7 @@
 create table if not exists event
 (
     id         uuid primary key default gen_random_uuid(),
+    title      varchar,
     info       text,
     type       varchar not null,
     location   varchar not null,

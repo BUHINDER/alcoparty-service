@@ -16,6 +16,7 @@ class EventModelToEventEntityConverter : Converter<EventModel, EventEntity> {
         val eventModel = source.eventDto
         return EventEntity(
             id = UUID.randomUUID(),
+            title = eventModel.title,
             info = eventModel.info,
             type = eventModel.type,
             location = eventModel.location,
