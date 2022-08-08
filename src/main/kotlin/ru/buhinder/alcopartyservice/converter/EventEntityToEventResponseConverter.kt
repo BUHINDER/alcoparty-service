@@ -11,6 +11,7 @@ class EventEntityToEventResponseConverter : Converter<EventEntity, EventResponse
     override fun convert(source: EventEntity): EventResponse {
         return EventResponse(
             id = source.id!!,
+            title = source.title,
             info = source.info,
             type = source.type,
             location = source.location,

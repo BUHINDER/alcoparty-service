@@ -9,6 +9,7 @@ import java.util.UUID
 @Table("event")
 open class EventEntity(
     id: UUID? = null,
+    val title: String,
     val info: String,
     val type: EventType,
     val location: String,
