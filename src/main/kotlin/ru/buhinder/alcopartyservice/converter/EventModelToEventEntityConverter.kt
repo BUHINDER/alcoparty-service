@@ -20,9 +20,9 @@ class EventModelToEventEntityConverter : Converter<EventModel, EventEntity> {
             info = eventModel.info,
             type = eventModel.type,
             location = eventModel.location,
-            status = if (eventModel.startDate > Instant.now().toEpochMilli()) SCHEDULED else ACTIVE,
+            status = if (eventModel.startDate!! > Instant.now().toEpochMilli()) SCHEDULED else ACTIVE,
             startDate = eventModel.startDate,
-            endDate = eventModel.endDate,
+            endDate = eventModel.endDate!!,
             createdBy = source.alcoholicId,
         )
     }

@@ -6,9 +6,9 @@ import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventE
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
 import ru.buhinder.alcopartyservice.entity.InvitationLinkEntity
-import ru.buhinder.alcopartyservice.repository.EventAlcoholicDaoFacade
-import ru.buhinder.alcopartyservice.repository.EventDaoFacade
-import ru.buhinder.alcopartyservice.repository.InvitationLinkDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.InvitationLinkDaoFacade
 import ru.buhinder.alcopartyservice.service.validation.EventAlcoholicValidationService
 import ru.buhinder.alcopartyservice.service.validation.InvitationLinkValidationService
 import java.time.Duration

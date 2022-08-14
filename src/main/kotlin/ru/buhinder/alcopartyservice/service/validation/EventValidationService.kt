@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
 import ru.buhinder.alcopartyservice.entity.enums.EventStatus.ENDED
-import ru.buhinder.alcopartyservice.repository.EventDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
 import java.util.UUID
 
 @Service

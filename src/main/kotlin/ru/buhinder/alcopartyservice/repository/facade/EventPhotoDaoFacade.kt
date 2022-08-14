@@ -1,9 +1,10 @@
-package ru.buhinder.alcopartyservice.repository
+package ru.buhinder.alcopartyservice.repository.facade
 
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.entity.EventPhotoEntity
+import ru.buhinder.alcopartyservice.repository.EventPhotoRepository
 
 @Repository
 class EventPhotoDaoFacade(

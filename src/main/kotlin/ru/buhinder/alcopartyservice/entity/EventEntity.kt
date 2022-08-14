@@ -15,7 +15,7 @@ open class EventEntity(
     val location: String,
     val status: EventStatus,
     val startDate: Long,
-    val endDate: Long? = null,
+    val endDate: Long,
     private val createdAt: Long? = Instant.now().toEpochMilli(),
     val createdBy: UUID,
 ) : AbstractAuditable(id)

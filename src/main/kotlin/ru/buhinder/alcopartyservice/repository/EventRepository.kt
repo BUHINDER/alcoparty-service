@@ -30,7 +30,7 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
             and ev.type != 'PRIVATE'
         """
     )
-    fun findAllNotPrivateAndAlcoholicIsNotBanned(alcoholicId: UUID): Flux<EventEntity>
+    fun findAllAndAlcoholicIsNotBanned(alcoholicId: UUID): Flux<EventEntity>
 
     @Query(
         """
@@ -46,7 +46,7 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
                               and is_banned)
         """
     )
-    fun findByIdAndNotPrivateAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity>
+    fun findByIdAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity>
 
     @Query(
         """
@@ -76,4 +76,13 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
     )
     fun findByInvitationLinkAndNotEnded(invitationLink: UUID): Mono<EventEntity>
 
+    @Query(
+        """
+            select e.* from event e
+                join event_alcoholic ea on e.id = ea.event_id
+            where ea.alcoholic_id = :alcoholicId
+            and ea.is_banned is false
+        """
+    )
+    fun findAllByAlcoholicIdAndIsNotBanned(alcoholicId: UUID): Flux<EventEntity>
 }

@@ -1,4 +1,4 @@
-package ru.buhinder.alcopartyservice.repository
+package ru.buhinder.alcopartyservice.repository.facade
 
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations
 import org.springframework.data.relational.core.query.Criteria
@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import ru.buhinder.alcopartyservice.controller.advice.exception.EntityNotFoundException
 import ru.buhinder.alcopartyservice.entity.EventEntity
+import ru.buhinder.alcopartyservice.repository.EventRepository
 import java.util.UUID
 
 @Repository
@@ -39,12 +40,12 @@ class EventDaoFacade(
             }
     }
 
-    fun findAllNotPrivateAndAlcoholicIsNotBanned(alcoholicId: UUID): Flux<EventEntity> {
-        return eventRepository.findAllNotPrivateAndAlcoholicIsNotBanned(alcoholicId)
+    fun findAllAndAlcoholicIsNotBanned(alcoholicId: UUID): Flux<EventEntity> {
+        return eventRepository.findAllAndAlcoholicIsNotBanned(alcoholicId)
     }
 
-    fun findByIdAndNotPrivateAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity> {
-        return eventRepository.findByIdAndNotPrivateAndAlcoholicIsNotBanned(eventId, alcoholicId)
+    fun findByIdAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity> {
+        return eventRepository.findByIdAndAlcoholicIsNotBanned(eventId, alcoholicId)
     }
 
     fun getByIdAndAlcoholicIsNotBannedAndStatusNotEnded(eventId: UUID, alcoholicId: UUID): Mono<EventEntity> {
@@ -69,6 +70,10 @@ class EventDaoFacade(
                     )
                 )
             }
+    }
+
+    fun findAllByAlcoholicIdAndIsNotBanned(alcoholicId: UUID): Flux<EventEntity> {
+        return eventRepository.findAllByAlcoholicIdAndIsNotBanned(alcoholicId)
     }
 
 }

@@ -11,9 +11,9 @@ import ru.buhinder.alcopartyservice.entity.EventEntity
 import ru.buhinder.alcopartyservice.entity.EventPhotoEntity
 import ru.buhinder.alcopartyservice.entity.enums.PhotoType
 import ru.buhinder.alcopartyservice.model.EventModel
-import ru.buhinder.alcopartyservice.repository.EventAlcoholicDaoFacade
-import ru.buhinder.alcopartyservice.repository.EventDaoFacade
-import ru.buhinder.alcopartyservice.repository.EventPhotoDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventPhotoDaoFacade
 import java.util.UUID
 
 @Component

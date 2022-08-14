@@ -7,7 +7,7 @@ import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
 import ru.buhinder.alcopartyservice.entity.enums.EventType
 import ru.buhinder.alcopartyservice.entity.enums.EventType.PUBLIC
-import ru.buhinder.alcopartyservice.repository.EventAlcoholicDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
 import ru.buhinder.alcopartyservice.service.validation.EventAlcoholicValidationService
 import ru.buhinder.alcopartyservice.service.validation.EventValidationService
 import java.util.UUID
