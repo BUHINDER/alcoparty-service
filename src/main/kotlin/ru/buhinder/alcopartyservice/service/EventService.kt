@@ -10,7 +10,7 @@ import ru.buhinder.alcopartyservice.controller.advice.exception.EntityNotFoundEx
 import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
-import ru.buhinder.alcopartyservice.repository.EventDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
 import ru.buhinder.alcopartyservice.service.strategy.EventStrategyRegistry
 import java.util.UUID
 
@@ -43,13 +43,13 @@ class EventService(
             }
     }
 
-    fun get(alcoholicId: UUID): Flux<EventResponse> {
-        return eventDaoFacade.findAllNotPrivateAndAlcoholicIsNotBanned(alcoholicId)
+    fun getAllEvents(alcoholicId: UUID): Flux<EventResponse> {
+        return eventDaoFacade.findAllAndAlcoholicIsNotBanned(alcoholicId)
             .map { conversionService.convert(it, EventResponse::class.java)!! }
     }
 
-    fun get(eventId: UUID, alcoholicId: UUID): Mono<EventResponse> {
-        return eventDaoFacade.findByIdAndNotPrivateAndAlcoholicIsNotBanned(eventId, alcoholicId)
+    fun getEventById(eventId: UUID, alcoholicId: UUID): Mono<EventResponse> {
+        return eventDaoFacade.findByIdAndAlcoholicIsNotBanned(eventId, alcoholicId)
             .map { conversionService.convert(it, EventResponse::class.java)!! }
             .switchIfEmpty {
                 Mono.error(
@@ -59,6 +59,12 @@ class EventService(
                     )
                 )
             }
+    }
+
+    fun findAllByAlcoholicId(alcoholicId: UUID): Mono<List<EventResponse>> {
+        return eventDaoFacade.findAllByAlcoholicIdAndIsNotBanned(alcoholicId)
+            .map { conversionService.convert(it, EventResponse::class.java)!! }
+            .collectList()
     }
 
 }

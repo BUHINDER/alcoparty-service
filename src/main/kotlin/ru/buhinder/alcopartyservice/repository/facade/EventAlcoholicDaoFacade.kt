@@ -1,4 +1,4 @@
-package ru.buhinder.alcopartyservice.repository
+package ru.buhinder.alcopartyservice.repository.facade
 
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations
 import org.springframework.data.relational.core.query.Criteria
@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.config.LoggerDelegate
 import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
+import ru.buhinder.alcopartyservice.repository.EventAlcoholicRepository
 import java.util.UUID
 
 @Repository

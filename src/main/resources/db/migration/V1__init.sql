@@ -7,7 +7,7 @@ create table if not exists event
     location   varchar not null,
     status     varchar not null,
     start_date bigint  not null,
-    end_date   bigint,
+    end_date   bigint  not null,
     created_at bigint  not null,
     created_by uuid    not null,
     version    integer not null default 1

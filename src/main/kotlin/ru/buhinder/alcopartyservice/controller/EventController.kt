@@ -41,15 +41,15 @@ class EventController(
     }
 
     @GetMapping
-    fun get(principal: Principal): Mono<ResponseEntity<List<EventResponse>>> {
-        return eventService.get(UUID.fromString(principal.name))
+    fun getAllEvents(principal: Principal): Mono<ResponseEntity<List<EventResponse>>> {
+        return eventService.getAllEvents(UUID.fromString(principal.name))
             .collectList()
             .map { ResponseEntity.ok(it.toList()) }
     }
 
     @GetMapping("/{eventId}")
-    fun get(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<EventResponse>> {
-        return eventService.get(eventId, UUID.fromString(principal.name))
+    fun getEventById(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<EventResponse>> {
+        return eventService.getEventById(eventId, UUID.fromString(principal.name))
             .map { ResponseEntity.ok(it) }
     }
 

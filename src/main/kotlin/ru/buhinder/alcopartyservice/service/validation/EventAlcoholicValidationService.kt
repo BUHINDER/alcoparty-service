@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
-import ru.buhinder.alcopartyservice.repository.EventAlcoholicDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
 import java.util.UUID
 
 @Service

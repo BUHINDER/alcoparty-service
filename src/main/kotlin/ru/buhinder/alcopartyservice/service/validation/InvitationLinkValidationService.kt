@@ -7,9 +7,9 @@ import reactor.kotlin.core.publisher.toMono
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
 import ru.buhinder.alcopartyservice.controller.advice.exception.EntityCannotBeCreatedException
 import ru.buhinder.alcopartyservice.entity.enums.EventType.PRIVATE
-import ru.buhinder.alcopartyservice.repository.EventAlcoholicDaoFacade
-import ru.buhinder.alcopartyservice.repository.EventDaoFacade
-import ru.buhinder.alcopartyservice.repository.InvitationLinkDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.InvitationLinkDaoFacade
 import java.time.Instant
 import java.util.UUID
 

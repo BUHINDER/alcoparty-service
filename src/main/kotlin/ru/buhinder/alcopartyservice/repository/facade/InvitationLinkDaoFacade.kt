@@ -1,10 +1,11 @@
-package ru.buhinder.alcopartyservice.repository
+package ru.buhinder.alcopartyservice.repository.facade
 
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import ru.buhinder.alcopartyservice.controller.advice.exception.EntityNotFoundException
 import ru.buhinder.alcopartyservice.entity.InvitationLinkEntity
+import ru.buhinder.alcopartyservice.repository.InvitationLinkRepository
 import java.util.UUID
 
 @Repository
