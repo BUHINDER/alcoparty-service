@@ -17,8 +17,6 @@ data class EventDto(
     @field:Size(min = 0, max = 1000)
     val info: String,
 
-    val photosIds: Set<UUID>,
-
     val type: EventType,
 
     @field:NotBlank(message = "location is required")
