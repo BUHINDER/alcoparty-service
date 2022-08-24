@@ -1,16 +1,19 @@
 package ru.buhinder.alcopartyservice.controller
 
+import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.http.ResponseEntity
+import org.springframework.http.codec.multipart.FilePart
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.dto.EventDto
-import ru.buhinder.alcopartyservice.dto.response.EventResponse
+import ru.buhinder.alcopartyservice.dto.response.FullEventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.service.EventService
 import java.security.Principal
@@ -23,14 +26,18 @@ class EventController(
     private val eventService: EventService,
 ) {
 
-    @PostMapping
+    @PostMapping(consumes = [MULTIPART_FORM_DATA_VALUE])
     fun save(
         @Valid
-        @RequestBody
+        @RequestPart(value = "event")
         dto: EventDto,
         principal: Principal,
-    ): Mono<ResponseEntity<IdResponse>> {
-        return eventService.create(dto, UUID.fromString(principal.name))
+        @RequestPart(value = "images", required = false)
+        files: Flux<FilePart>,
+    ): Mono<ResponseEntity<FullEventResponse>> {
+        return files
+            .collectList()
+            .flatMap { eventService.create(dto, UUID.fromString(principal.name), it.toList()) }
             .map { ResponseEntity.ok(it) }
     }
 
@@ -41,14 +48,14 @@ class EventController(
     }
 
     @GetMapping
-    fun getAllEvents(principal: Principal): Mono<ResponseEntity<List<EventResponse>>> {
+    fun getAllEvents(principal: Principal): Mono<ResponseEntity<List<FullEventResponse>>> {
         return eventService.getAllEvents(UUID.fromString(principal.name))
             .collectList()
             .map { ResponseEntity.ok(it.toList()) }
     }
 
     @GetMapping("/{eventId}")
-    fun getEventById(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<EventResponse>> {
+    fun getEventById(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<FullEventResponse>> {
         return eventService.getEventById(eventId, UUID.fromString(principal.name))
             .map { ResponseEntity.ok(it) }
     }
