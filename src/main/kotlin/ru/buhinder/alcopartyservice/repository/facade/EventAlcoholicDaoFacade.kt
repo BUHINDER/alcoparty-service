@@ -5,6 +5,7 @@ import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.CriteriaDefinition
 import org.springframework.data.relational.core.query.Query
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.config.LoggerDelegate
 import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
@@ -50,6 +51,10 @@ class EventAlcoholicDaoFacade(
             eventId = eventId,
             alcoholicId = alcoholicId
         )
+    }
+
+    fun findAllByEventId(eventId: UUID): Flux<EventAlcoholicEntity> {
+        return eventAlcoholicRepository.findAllByEventId(eventId)
     }
 
 }
