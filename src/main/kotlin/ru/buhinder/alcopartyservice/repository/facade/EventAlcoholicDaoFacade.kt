@@ -23,6 +23,10 @@ class EventAlcoholicDaoFacade(
         return r2dbcEntityOperations.insert(eventAlcoholicEntity)
     }
 
+    fun update(eventAlcoholicEntity: EventAlcoholicEntity): Mono<EventAlcoholicEntity> {
+        return eventAlcoholicRepository.save(eventAlcoholicEntity)
+    }
+
     fun delete(eventAlcoholicEntity: EventAlcoholicEntity): Mono<Void> {
         return eventAlcoholicRepository.delete(eventAlcoholicEntity)
     }

@@ -12,6 +12,7 @@ import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
 import ru.buhinder.alcopartyservice.dto.response.FullEventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
+import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
 import ru.buhinder.alcopartyservice.entity.EventPhotoEntity
 import ru.buhinder.alcopartyservice.entity.enums.PhotoType.ACTIVE
 import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
@@ -56,7 +57,8 @@ class EventService(
     }
 
     fun join(eventId: UUID, alcoholicId: UUID): Mono<IdResponse> {
-        return eventDaoFacade.getById(eventId)
+        return eventAlcoholicValidationService.validateAlcoholicIsNotBanned(eventId, alcoholicId)
+            .flatMap { eventDaoFacade.getById(eventId) }
             .flatMap { event ->
                 if (event.createdBy == alcoholicId) {
                     Mono.error(
@@ -73,7 +75,8 @@ class EventService(
     }
 
     fun leave(eventId: UUID, alcoholicId: UUID): Mono<Void> {
-        return eventAlcoholicValidationService.validateAlcoholicIsParticipatingInTheEvent(eventId, alcoholicId)
+        return eventAlcoholicValidationService.validateAlcoholicIsAParticipant(eventId, alcoholicId)
+            .flatMap { eventAlcoholicDaoFacade.findByEventIdAndAlcoholicId(eventId, alcoholicId) }
             .flatMap { eventAlcoholicDaoFacade.delete(it) }
     }
 
@@ -124,8 +127,28 @@ class EventService(
             .collectList()
     }
 
+    fun block(eventId: UUID, alcoholicId: UUID, currentAlcoholicId: UUID): Mono<Boolean> {
+        return eventDaoFacade.getById(eventId)
+            .flatMap { eventAlcoholicValidationService.validateUserIsTheEventOwner(it.createdBy, currentAlcoholicId) }
+            .flatMap { eventAlcoholicValidationService.validateAlcoholicIsAParticipant(eventId, alcoholicId) }
+            .flatMap { eventAlcoholicDaoFacade.findByEventIdAndAlcoholicId(eventId, alcoholicId) }
+            .flatMap { eventAlcoholicDaoFacade.update(updateEventAlcoholicEntity(it)) }
+            .map { true }
+    }
+
     private fun buildPhotosList(photosIds: Set<UUID>, eventId: UUID): List<EventPhotoEntity> {
         return photosIds
             .map { EventPhotoEntity(eventId = eventId, photoId = it, type = ACTIVE) }
+    }
+
+    private fun updateEventAlcoholicEntity(it: EventAlcoholicEntity): EventAlcoholicEntity {
+        return EventAlcoholicEntity(
+            it.id,
+            it.eventId,
+            it.alcoholicId,
+            true,
+            it.createdAt,
+            it.version,
+        )
     }
 }
