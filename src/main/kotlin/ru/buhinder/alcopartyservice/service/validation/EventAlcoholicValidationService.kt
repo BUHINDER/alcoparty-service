@@ -3,8 +3,10 @@ package ru.buhinder.alcopartyservice.service.validation
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
+import reactor.kotlin.core.publisher.toMono
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
-import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
+import ru.buhinder.alcopartyservice.controller.advice.exception.EntityCannotBeUpdatedException
+import ru.buhinder.alcopartyservice.controller.advice.exception.InsufficientPermissionException
 import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
 import java.util.UUID
 
@@ -19,24 +21,57 @@ class EventAlcoholicValidationService(
                 Mono.error<Boolean>(
                     CannotJoinEventException(
                         message = "You are already participating in this event",
-                        payload = mapOf("id" to it.eventId)
+                        payload = mapOf("id" to eventId)
                     )
                 )
             }
             .switchIfEmpty { Mono.just(true) }
     }
 
-
-    fun validateAlcoholicIsParticipatingInTheEvent(eventId: UUID, alcoholicId: UUID): Mono<EventAlcoholicEntity> {
+    fun validateAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<Boolean> {
         return eventAlcoholicDaoFacade.findByEventIdAndAlcoholicId(eventId = eventId, alcoholicId = alcoholicId)
-            .map { it }
+            .map {
+                if (it.isBanned!!) {
+                    throw CannotJoinEventException(
+                        message = "You were banned from this event",
+                        payload = mapOf("id" to eventId)
+                    )
+                }
+                true
+            }
+    }
+
+    fun validateAlcoholicIsAParticipant(eventId: UUID, alcoholicId: UUID): Mono<Boolean> {
+        return eventAlcoholicDaoFacade.findByEventIdAndAlcoholicId(eventId = eventId, alcoholicId = alcoholicId)
+            .map {
+                if (it.isBanned!!) {
+                    throw EntityCannotBeUpdatedException(
+                        message = "User was banned from this event",
+                        payload = mapOf("id" to eventId)
+                    )
+                }
+                true
+            }
             .switchIfEmpty {
                 Mono.error(
-                    CannotJoinEventException(
-                        message = "You are not participating in this event",
+                    EntityCannotBeUpdatedException(
+                        message = "User is not participating in this event",
                         payload = mapOf("id" to eventId)
                     )
                 )
+            }
+    }
+
+    fun validateUserIsTheEventOwner(eventOwnerId: UUID, currentAlcoholicId: UUID): Mono<Boolean> {
+        return eventOwnerId.toMono()
+            .map {
+                if (it != currentAlcoholicId) {
+                    throw InsufficientPermissionException(
+                        message = "You are not the event owner",
+                        payload = emptyMap()
+                    )
+                }
+                true
             }
     }
 

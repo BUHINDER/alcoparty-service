@@ -36,18 +36,20 @@ class InvitationLinkService(
         return invitationLinkValidationService.validateUsageAmountAndNotExpired(invitationLink)
             .flatMap { eventDaoFacade.getByInvitationLinkAndNotEnded(invitationLink) }
             .flatMap { event ->
+                val eventId = event.id!!
                 if (event.createdBy == alcoholicId) {
                     return@flatMap Mono.error(
                         CannotJoinEventException(
                             message = "You cannot join your own event",
-                            payload = mapOf("id" to event.id!!)
+                            payload = mapOf("id" to eventId)
                         )
                     )
                 }
-                eventAlcoholicValidationService.validateAlcoholicIsNotAlreadyParticipating(event.id!!, alcoholicId)
-                    .flatMap { eventAlcoholicDaoFacade.insert(EventAlcoholicEntity(UUID.randomUUID(), event.id!!, alcoholicId)) }
+                eventAlcoholicValidationService.validateAlcoholicIsNotBanned(eventId, alcoholicId)
+                    .flatMap { eventAlcoholicValidationService.validateAlcoholicIsNotAlreadyParticipating(eventId, alcoholicId) }
+                    .flatMap { eventAlcoholicDaoFacade.insert(EventAlcoholicEntity(UUID.randomUUID(), eventId, alcoholicId)) }
                     .flatMap { invitationLinkDaoFacade.decrementUsageAmount(invitationLink) }
-                    .map { IdResponse(event.id!!) }
+                    .map { IdResponse(eventId) }
             }
     }
 }

@@ -9,4 +9,6 @@ enum class AlcoholicErrorCode : ErrorCode {
     NOT_FOUND,
     ALREADY_EXISTS,
     CANNOT_JOIN,
+    CANNOT_LEAVE,
+    INSUFFICIENT_PERMISSIONS,
 }

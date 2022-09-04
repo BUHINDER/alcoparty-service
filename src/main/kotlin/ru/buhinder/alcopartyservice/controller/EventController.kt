@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.dto.EventDto
+import ru.buhinder.alcopartyservice.dto.response.EventResponse
 import ru.buhinder.alcopartyservice.dto.response.FullEventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.service.EventService
@@ -53,6 +55,15 @@ class EventController(
             .map { ResponseEntity.ok().build() }
     }
 
+    @PutMapping("/block")
+    fun block(
+        @RequestParam("eventId") eventId: UUID,
+        @RequestParam("userId") alcoholicId: UUID,
+        principal: Principal,
+    ): Mono<Boolean> {
+        return eventService.block(eventId, alcoholicId, UUID.fromString(principal.name))
+    }
+
     @GetMapping
     fun getAllEvents(principal: Principal): Mono<ResponseEntity<List<FullEventResponse>>> {
         return eventService.getAllEvents(UUID.fromString(principal.name))
@@ -63,6 +74,12 @@ class EventController(
     @GetMapping("/{eventId}")
     fun getEventById(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<FullEventResponse>> {
         return eventService.getEventById(eventId, UUID.fromString(principal.name))
+            .map { ResponseEntity.ok(it) }
+    }
+
+    @GetMapping("/own")
+    fun getOwnEvents(principal: Principal): Mono<ResponseEntity<List<EventResponse>>> {
+        return eventService.findAllByAlcoholicId(UUID.fromString(principal.name))
             .map { ResponseEntity.ok(it) }
     }
 
