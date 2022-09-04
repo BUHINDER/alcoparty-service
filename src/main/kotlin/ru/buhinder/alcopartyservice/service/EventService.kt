@@ -18,6 +18,7 @@ import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
 import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
 import ru.buhinder.alcopartyservice.repository.facade.EventPhotoDaoFacade
 import ru.buhinder.alcopartyservice.service.strategy.EventStrategyRegistry
+import ru.buhinder.alcopartyservice.service.validation.EventAlcoholicValidationService
 import ru.buhinder.alcopartyservice.service.validation.ImageValidationService
 import java.util.UUID
 
@@ -30,6 +31,7 @@ class EventService(
     private val eventPhotoDaoFacade: EventPhotoDaoFacade,
     private val imageValidationService: ImageValidationService,
     private val eventAlcoholicDaoFacade: EventAlcoholicDaoFacade,
+    private val eventAlcoholicValidationService: EventAlcoholicValidationService,
 ) {
 
     fun create(dto: EventDto, alcoholicId: UUID, images: List<FilePart>): Mono<FullEventResponse> {
@@ -57,7 +59,7 @@ class EventService(
         return eventDaoFacade.getById(eventId)
             .flatMap { event ->
                 if (event.createdBy == alcoholicId) {
-                    return@flatMap Mono.error(
+                    Mono.error(
                         CannotJoinEventException(
                             message = "You cannot join your own event",
                             payload = mapOf("id" to eventId)
@@ -68,6 +70,11 @@ class EventService(
                         .flatMap { it.join(eventId = eventId, alcoholicId = alcoholicId) }
                 }
             }
+    }
+
+    fun leave(eventId: UUID, alcoholicId: UUID): Mono<Void> {
+        return eventAlcoholicValidationService.validateAlcoholicIsParticipatingInTheEvent(eventId, alcoholicId)
+            .flatMap { eventAlcoholicDaoFacade.delete(it) }
     }
 
     fun getAllEvents(alcoholicId: UUID): Flux<FullEventResponse> {

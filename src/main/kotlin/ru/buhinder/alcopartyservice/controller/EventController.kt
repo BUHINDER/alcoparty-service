@@ -41,10 +41,16 @@ class EventController(
             .map { ResponseEntity.ok(it) }
     }
 
-    @PutMapping("/{eventId}")
+    @PutMapping("/join/{eventId}")
     fun join(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<IdResponse>> {
         return eventService.join(eventId = eventId, alcoholicId = UUID.fromString(principal.name))
             .map { ResponseEntity.ok(it) }
+    }
+
+    @PutMapping("/leave/{eventId}")
+    fun leave(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<Void>> {
+        return eventService.leave(eventId, UUID.fromString(principal.name))
+            .map { ResponseEntity.ok().build() }
     }
 
     @GetMapping
