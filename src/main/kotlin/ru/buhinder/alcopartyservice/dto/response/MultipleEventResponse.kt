@@ -4,6 +4,6 @@ import java.util.UUID
 
 data class MultipleEventResponse(
     val event: EventResponse,
-    val images: List<UUID>,
+    val image: UUID?,
     val isParticipant: Boolean,
 )

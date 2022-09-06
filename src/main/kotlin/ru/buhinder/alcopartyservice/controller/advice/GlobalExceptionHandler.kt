@@ -1,5 +1,7 @@
 package ru.buhinder.alcopartyservice.controller.advice
 
+import java.util.StringJoiner
+import java.util.stream.Collectors
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE
 import org.springframework.http.ResponseEntity
@@ -8,14 +10,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.reactive.function.client.WebClientException
 import org.springframework.web.server.ServerWebInputException
+import ru.buhinder.alcopartyservice.config.LoggerDelegate
 import ru.buhinder.alcopartyservice.controller.advice.dto.AlcoholicErrorCode.VALIDATION_ERROR
 import ru.buhinder.alcopartyservice.controller.advice.dto.ErrorInfoDto
 import ru.buhinder.alcopartyservice.controller.advice.exception.AlcoholicApiException
-import java.util.StringJoiner
-import java.util.stream.Collectors
 
 @ControllerAdvice
 class GlobalExceptionHandler {
+
+    private val logger by LoggerDelegate()
 
     @ExceptionHandler(WebExchangeBindException::class)
     fun handleException(exception: WebExchangeBindException): ResponseEntity<ErrorInfoDto> {
@@ -69,6 +72,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleCommonException(exception: Exception): ResponseEntity<ErrorInfoDto> {
+        logger.error("Unknown exception thrown  ", exception)
         val apiErrorDto = ErrorInfoDto(exception)
         return ResponseEntity.status(INTERNAL_SERVER_ERROR)
             .body(apiErrorDto)

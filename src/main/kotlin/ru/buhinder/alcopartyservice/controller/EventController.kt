@@ -1,8 +1,13 @@
 package ru.buhinder.alcopartyservice.controller
 
+import java.security.Principal
+import java.util.UUID
+import javax.validation.Valid
+import javax.validation.constraints.Min
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -17,13 +22,12 @@ import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.dto.response.MultipleEventResponse
+import ru.buhinder.alcopartyservice.dto.response.PageableResponse
 import ru.buhinder.alcopartyservice.dto.response.SingleEventResponse
 import ru.buhinder.alcopartyservice.service.EventAlcoholicService
 import ru.buhinder.alcopartyservice.service.EventService
-import java.security.Principal
-import java.util.UUID
-import javax.validation.Valid
 
+@Validated
 @RestController
 @RequestMapping("/api/alcoparty/event")
 class EventController(
@@ -74,11 +78,12 @@ class EventController(
     }
 
     @GetMapping
-    fun getAllEvents(principal: Principal): Mono<ResponseEntity<List<MultipleEventResponse>>> {
-        return eventService.getAllEvents(UUID.fromString(principal.name))
-            .sort { o1, o2 -> o1.event.id.compareTo(o2.event.id) }
-            .collectList()
-            .map { ResponseEntity.ok(it.toList()) }
+    fun getAllEvents(
+        @Valid @Min(0) page: Int,
+        @Valid @Min(1) pageSize: Int,
+        principal: Principal
+    ): Mono<PageableResponse<MultipleEventResponse>> {
+        return eventService.getAllEvents(UUID.fromString(principal.name), page, pageSize)
     }
 
     @GetMapping("/{eventId}")
@@ -88,8 +93,12 @@ class EventController(
     }
 
     @GetMapping("/own")
-    fun getOwnEvents(principal: Principal): Mono<ResponseEntity<List<EventResponse>>> {
-        return eventService.findAllByAlcoholicId(UUID.fromString(principal.name))
+    fun getOwnEvents(
+        @Valid @Min(0) page: Int,
+        @Valid @Min(1) pageSize: Int,
+        principal: Principal
+    ): Mono<ResponseEntity<PageableResponse<EventResponse>>> {
+        return eventService.findAllByAlcoholicId(UUID.fromString(principal.name), page, pageSize)
             .map { ResponseEntity.ok(it) }
     }
 
