@@ -31,7 +31,7 @@ class EventAlcoholicValidationService(
     fun validateAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<Boolean> {
         return eventAlcoholicDaoFacade.findByEventIdAndAlcoholicId(eventId = eventId, alcoholicId = alcoholicId)
             .map {
-                if (it.isBanned!!) {
+                if (it.isBanned) {
                     throw CannotJoinEventException(
                         message = "You were banned from this event",
                         payload = mapOf("id" to eventId)
@@ -39,12 +39,13 @@ class EventAlcoholicValidationService(
                 }
                 true
             }
+            .switchIfEmpty { Mono.just(true) }
     }
 
     fun validateAlcoholicIsAParticipant(eventId: UUID, alcoholicId: UUID): Mono<Boolean> {
         return eventAlcoholicDaoFacade.findByEventIdAndAlcoholicId(eventId = eventId, alcoholicId = alcoholicId)
             .map {
-                if (it.isBanned!!) {
+                if (it.isBanned) {
                     throw EntityCannotBeUpdatedException(
                         message = "User was banned from this event",
                         payload = mapOf("id" to eventId)
