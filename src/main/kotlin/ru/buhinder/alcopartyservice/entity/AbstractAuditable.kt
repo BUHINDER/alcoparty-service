@@ -6,5 +6,4 @@ import java.util.UUID
 open class AbstractAuditable(givenId: UUID? = null) {
     @Id
     open var id: UUID? = givenId ?: UUID.randomUUID()
-
 }

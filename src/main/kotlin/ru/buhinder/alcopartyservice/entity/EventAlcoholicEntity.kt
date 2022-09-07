@@ -13,5 +13,5 @@ open class EventAlcoholicEntity(
     val isBanned: Boolean = false,
     val createdAt: Long? = Instant.now().toEpochMilli(),
     @Version
-    open var version: Int? = 0,
+    open var version: Int? = null,
 ) : AbstractAuditable(id)
