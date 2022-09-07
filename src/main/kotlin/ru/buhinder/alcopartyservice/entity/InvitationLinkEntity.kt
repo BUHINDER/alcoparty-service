@@ -1,5 +1,6 @@
 package ru.buhinder.alcopartyservice.entity
 
+import org.springframework.data.annotation.Version
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 import java.util.UUID
@@ -12,4 +13,6 @@ open class InvitationLinkEntity(
     val expiresAt: Long,
     private val createdAt: Long? = Instant.now().toEpochMilli(),
     val createdBy: UUID,
+    @Version
+    open var version: Int? = null,
 ) : AbstractAuditable(id)
