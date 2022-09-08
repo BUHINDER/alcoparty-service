@@ -17,6 +17,7 @@ import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
 import ru.buhinder.alcopartyservice.dto.response.FullEventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
+import ru.buhinder.alcopartyservice.service.EventAlcoholicService
 import ru.buhinder.alcopartyservice.service.EventService
 import java.security.Principal
 import java.util.UUID
@@ -26,6 +27,7 @@ import javax.validation.Valid
 @RequestMapping("/api/alcoparty/event")
 class EventController(
     private val eventService: EventService,
+    private val eventAlcoholicService: EventAlcoholicService,
 ) {
 
     @PostMapping(consumes = [MULTIPART_FORM_DATA_VALUE])
@@ -55,13 +57,19 @@ class EventController(
             .map { ResponseEntity.ok().build() }
     }
 
+    @PutMapping("/disband/{eventId}")
+    fun disband(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<Void>> {
+        return eventService.disband(eventId, UUID.fromString(principal.name))
+            .map { ResponseEntity.ok().build() }
+    }
+
     @PutMapping("/block")
     fun block(
         @RequestParam("eventId") eventId: UUID,
         @RequestParam("userId") alcoholicId: UUID,
         principal: Principal,
     ): Mono<Boolean> {
-        return eventService.block(eventId, alcoholicId, UUID.fromString(principal.name))
+        return eventAlcoholicService.block(eventId, alcoholicId, UUID.fromString(principal.name))
     }
 
     @GetMapping
