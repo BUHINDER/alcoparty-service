@@ -3,16 +3,17 @@ package ru.buhinder.alcopartyservice.service.validation
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
-import reactor.kotlin.core.publisher.toMono
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
 import ru.buhinder.alcopartyservice.controller.advice.exception.EntityCannotBeUpdatedException
 import ru.buhinder.alcopartyservice.controller.advice.exception.InsufficientPermissionException
 import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
+import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
 import java.util.UUID
 
 @Service
 class EventAlcoholicValidationService(
     private val eventAlcoholicDaoFacade: EventAlcoholicDaoFacade,
+    private val eventDaoFacade: EventDaoFacade,
 ) {
 
     fun validateAlcoholicIsNotAlreadyParticipating(eventId: UUID, alcoholicId: UUID): Mono<Boolean> {
@@ -63,12 +64,12 @@ class EventAlcoholicValidationService(
             }
     }
 
-    fun validateUserIsTheEventOwner(eventOwnerId: UUID, currentAlcoholicId: UUID): Mono<Boolean> {
-        return eventOwnerId.toMono()
+    fun validateUserIsTheEventOwner(eventId: UUID, alcoholicId: UUID): Mono<Boolean> {
+        return eventDaoFacade.getById(eventId)
             .map {
-                if (it != currentAlcoholicId) {
+                if (it.createdBy != alcoholicId) {
                     throw InsufficientPermissionException(
-                        message = "You are not the event owner",
+                        message = "Insufficient permission. Must be the event owner",
                         payload = emptyMap()
                     )
                 }

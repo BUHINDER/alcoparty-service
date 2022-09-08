@@ -25,6 +25,10 @@ class EventDaoFacade(
         return r2dbcEntityOperations.insert(eventEntity)
     }
 
+    fun deleteById(eventId: UUID): Mono<Void> {
+        return eventRepository.deleteById(eventId)
+    }
+
     fun getById(eventId: UUID): Mono<EventEntity> {
         return r2dbcEntityOperations.selectOne(
             Query.query(Criteria.where("id").`is`(eventId)),

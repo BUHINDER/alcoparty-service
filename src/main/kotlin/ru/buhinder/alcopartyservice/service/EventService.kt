@@ -12,7 +12,6 @@ import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
 import ru.buhinder.alcopartyservice.dto.response.FullEventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
-import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
 import ru.buhinder.alcopartyservice.entity.EventPhotoEntity
 import ru.buhinder.alcopartyservice.entity.enums.PhotoType.ACTIVE
 import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
@@ -80,6 +79,11 @@ class EventService(
             .flatMap { eventAlcoholicDaoFacade.delete(it) }
     }
 
+    fun disband(eventId: UUID, currentAlcoholicId: UUID): Mono<Void> {
+        return eventAlcoholicValidationService.validateUserIsTheEventOwner(eventId, currentAlcoholicId)
+            .flatMap { eventDaoFacade.deleteById(eventId) }
+    }
+
     fun getAllEvents(alcoholicId: UUID): Flux<FullEventResponse> {
         return eventDaoFacade.findAllAndAlcoholicIsNotBanned(alcoholicId)
             .map { conversionService.convert(it, EventResponse::class.java)!! }
@@ -127,28 +131,9 @@ class EventService(
             .collectList()
     }
 
-    fun block(eventId: UUID, alcoholicId: UUID, currentAlcoholicId: UUID): Mono<Boolean> {
-        return eventDaoFacade.getById(eventId)
-            .flatMap { eventAlcoholicValidationService.validateUserIsTheEventOwner(it.createdBy, currentAlcoholicId) }
-            .flatMap { eventAlcoholicValidationService.validateAlcoholicIsAParticipant(eventId, alcoholicId) }
-            .flatMap { eventAlcoholicDaoFacade.findByEventIdAndAlcoholicId(eventId, alcoholicId) }
-            .flatMap { eventAlcoholicDaoFacade.update(updateEventAlcoholicEntity(it)) }
-            .map { true }
-    }
-
     private fun buildPhotosList(photosIds: Set<UUID>, eventId: UUID): List<EventPhotoEntity> {
         return photosIds
             .map { EventPhotoEntity(eventId = eventId, photoId = it, type = ACTIVE) }
     }
 
-    private fun updateEventAlcoholicEntity(it: EventAlcoholicEntity): EventAlcoholicEntity {
-        return EventAlcoholicEntity(
-            it.id,
-            it.eventId,
-            it.alcoholicId,
-            true,
-            it.createdAt,
-            it.version,
-        )
-    }
 }
