@@ -15,8 +15,9 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
-import ru.buhinder.alcopartyservice.dto.response.FullEventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
+import ru.buhinder.alcopartyservice.dto.response.MultipleEventResponse
+import ru.buhinder.alcopartyservice.dto.response.SingleEventResponse
 import ru.buhinder.alcopartyservice.service.EventAlcoholicService
 import ru.buhinder.alcopartyservice.service.EventService
 import java.security.Principal
@@ -38,7 +39,7 @@ class EventController(
         principal: Principal,
         @RequestPart(value = "images", required = false)
         files: Flux<FilePart>,
-    ): Mono<ResponseEntity<FullEventResponse>> {
+    ): Mono<ResponseEntity<IdResponse>> {
         return files
             .collectList()
             .flatMap { eventService.create(dto, UUID.fromString(principal.name), it.toList()) }
@@ -73,14 +74,15 @@ class EventController(
     }
 
     @GetMapping
-    fun getAllEvents(principal: Principal): Mono<ResponseEntity<List<FullEventResponse>>> {
+    fun getAllEvents(principal: Principal): Mono<ResponseEntity<List<MultipleEventResponse>>> {
         return eventService.getAllEvents(UUID.fromString(principal.name))
+            .sort { o1, o2 -> o1.event.id.compareTo(o2.event.id) }
             .collectList()
             .map { ResponseEntity.ok(it.toList()) }
     }
 
     @GetMapping("/{eventId}")
-    fun getEventById(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<FullEventResponse>> {
+    fun getEventById(@PathVariable eventId: UUID, principal: Principal): Mono<ResponseEntity<SingleEventResponse>> {
         return eventService.getEventById(eventId, UUID.fromString(principal.name))
             .map { ResponseEntity.ok(it) }
     }

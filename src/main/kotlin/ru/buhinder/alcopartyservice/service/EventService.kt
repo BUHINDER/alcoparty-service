@@ -10,8 +10,9 @@ import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventE
 import ru.buhinder.alcopartyservice.controller.advice.exception.EntityNotFoundException
 import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
-import ru.buhinder.alcopartyservice.dto.response.FullEventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
+import ru.buhinder.alcopartyservice.dto.response.MultipleEventResponse
+import ru.buhinder.alcopartyservice.dto.response.SingleEventResponse
 import ru.buhinder.alcopartyservice.entity.EventPhotoEntity
 import ru.buhinder.alcopartyservice.entity.enums.PhotoType.ACTIVE
 import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
@@ -34,7 +35,7 @@ class EventService(
     private val eventAlcoholicValidationService: EventAlcoholicValidationService,
 ) {
 
-    fun create(dto: EventDto, alcoholicId: UUID, images: List<FilePart>): Mono<FullEventResponse> {
+    fun create(dto: EventDto, alcoholicId: UUID, images: List<FilePart>): Mono<IdResponse> {
         return imageValidationService.validateImageFormat(images)
             .flatMap { eventStrategyRegistry.get(dto.type) }
             .flatMap { it.create(dto, alcoholicId) }
@@ -43,15 +44,7 @@ class EventService(
                 minioService.saveEventImages(images)
                     .map { buildPhotosList(it, eventId) }
                     .flatMap { eventPhotoDaoFacade.insertAll(it) }
-                    .flatMapIterable { it }
-                    .map { it.photoId }
-                    .collectList()
-                    .flatMap { photos ->
-                        eventAlcoholicDaoFacade.findAllByEventId(eventId)
-                            .map { it.alcoholicId }
-                            .collectList()
-                            .map { FullEventResponse(res, photos, it.toList()) }
-                    }
+                    .map { IdResponse(eventId) }
             }
     }
 
@@ -84,7 +77,7 @@ class EventService(
             .flatMap { eventDaoFacade.deleteById(eventId) }
     }
 
-    fun getAllEvents(alcoholicId: UUID): Flux<FullEventResponse> {
+    fun getAllEvents(alcoholicId: UUID): Flux<MultipleEventResponse> {
         return eventDaoFacade.findAllAndAlcoholicIsNotBanned(alcoholicId)
             .map { conversionService.convert(it, EventResponse::class.java)!! }
             .flatMap { res ->
@@ -94,14 +87,13 @@ class EventService(
                     .collectList()
                     .flatMap { photos ->
                         eventAlcoholicDaoFacade.findAllByEventId(eventId)
-                            .map { it.alcoholicId }
-                            .collectList()
-                            .map { FullEventResponse(res, photos, it.toList()) }
+                            .any { it.alcoholicId == alcoholicId }
+                            .map { MultipleEventResponse(res, photos, it) }
                     }
             }
     }
 
-    fun getEventById(eventId: UUID, alcoholicId: UUID): Mono<FullEventResponse> {
+    fun getEventById(eventId: UUID, alcoholicId: UUID): Mono<SingleEventResponse> {
         return eventDaoFacade.findByIdAndAlcoholicIsNotBanned(eventId, alcoholicId)
             .map { conversionService.convert(it, EventResponse::class.java)!! }
             .flatMap { res ->
@@ -112,7 +104,7 @@ class EventService(
                         eventAlcoholicDaoFacade.findAllByEventId(eventId)
                             .map { it.alcoholicId }
                             .collectList()
-                            .map { FullEventResponse(res, photos, it.toList()) }
+                            .map { SingleEventResponse(res, photos, it) }
                     }
             }
             .switchIfEmpty {
