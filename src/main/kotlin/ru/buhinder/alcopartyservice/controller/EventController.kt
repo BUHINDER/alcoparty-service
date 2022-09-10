@@ -1,9 +1,5 @@
 package ru.buhinder.alcopartyservice.controller
 
-import java.security.Principal
-import java.util.UUID
-import javax.validation.Valid
-import javax.validation.constraints.Min
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
@@ -18,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import ru.buhinder.alcopartyservice.config.properties.PaginationProperties
 import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
@@ -26,6 +23,10 @@ import ru.buhinder.alcopartyservice.dto.response.PageableResponse
 import ru.buhinder.alcopartyservice.dto.response.SingleEventResponse
 import ru.buhinder.alcopartyservice.service.EventAlcoholicService
 import ru.buhinder.alcopartyservice.service.EventService
+import java.security.Principal
+import java.util.UUID
+import javax.validation.Valid
+import javax.validation.constraints.Min
 
 @Validated
 @RestController
@@ -33,6 +34,7 @@ import ru.buhinder.alcopartyservice.service.EventService
 class EventController(
     private val eventService: EventService,
     private val eventAlcoholicService: EventAlcoholicService,
+    private val paginationProperties: PaginationProperties,
 ) {
 
     @PostMapping(consumes = [MULTIPART_FORM_DATA_VALUE])
@@ -79,11 +81,15 @@ class EventController(
 
     @GetMapping
     fun getAllEvents(
-        @Valid @Min(0) page: Int,
-        @Valid @Min(1) pageSize: Int,
-        principal: Principal
+        @Valid @Min(0) @RequestParam("page") page: Int?,
+        @Valid @Min(1) @RequestParam("pageSize") pageSize: Int?,
+        principal: Principal,
     ): Mono<PageableResponse<MultipleEventResponse>> {
-        return eventService.getAllEvents(UUID.fromString(principal.name), page, pageSize)
+        return eventService.getAllEvents(
+            UUID.fromString(principal.name),
+            page ?: paginationProperties.page,
+            pageSize ?: paginationProperties.pageSize
+        )
     }
 
     @GetMapping("/{eventId}")
@@ -94,11 +100,15 @@ class EventController(
 
     @GetMapping("/own")
     fun getOwnEvents(
-        @Valid @Min(0) page: Int,
-        @Valid @Min(1) pageSize: Int,
-        principal: Principal
+        @Valid @Min(0) @RequestParam("page") page: Int?,
+        @Valid @Min(1) @RequestParam("pageSize") pageSize: Int?,
+        principal: Principal,
     ): Mono<ResponseEntity<PageableResponse<EventResponse>>> {
-        return eventService.findAllByAlcoholicId(UUID.fromString(principal.name), page, pageSize)
+        return eventService.findAllByAlcoholicId(
+            UUID.fromString(principal.name),
+            page ?: paginationProperties.page,
+            pageSize ?: paginationProperties.pageSize
+        )
             .map { ResponseEntity.ok(it) }
     }
 
