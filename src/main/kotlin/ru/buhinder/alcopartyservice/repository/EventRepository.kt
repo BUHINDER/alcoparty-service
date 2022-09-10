@@ -1,11 +1,11 @@
 package ru.buhinder.alcopartyservice.repository
 
-import java.util.UUID
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.entity.EventEntity
+import java.util.UUID
 
 interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
 
@@ -36,14 +36,16 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
 
     @Query(
         """
-            select count(*)
+            with all_events as (
+            select *
             from event ev
             where ev.id in (select event_id
                             from event_alcoholic
                             where alcoholic_id = :alcoholicId
                               and is_banned = false)
-            union distinct
-            select count(*)
+            union
+            distinct
+            select *
             from event ev
             where ev.id in (select e.id
                             from event e
@@ -52,7 +54,8 @@ interface EventRepository : ReactiveCrudRepository<EventEntity, UUID> {
                             from event_alcoholic
                             where alcoholic_id = :alcoholicId
                               and is_banned)
-            and ev.type != 'PRIVATE'
+              and ev.type != 'PRIVATE')
+            select count(*) from all_events
         """
     )
     fun countAllAndAlcoholicIsNotBanned(alcoholicId: UUID): Mono<Long>
