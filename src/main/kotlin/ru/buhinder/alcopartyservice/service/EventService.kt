@@ -86,13 +86,14 @@ class EventService(
                 val eventId = res.id
                 eventAlcoholicDaoFacade.findAllByEventId(eventId).any { it.alcoholicId == alcoholicId }
                     .flatMap { isParticipant ->
-                        eventPhotoDaoFacade.findFirstByEventId(alcoholicId).map { it.photoId }
+                        eventPhotoDaoFacade.findFirstByEventId(eventId)
+                            .map { it.photoId }
                             .map { MultipleEventResponse(res, it, isParticipant) }
-                            .switchIfEmpty(MultipleEventResponse(res, null, isParticipant).toMono())
+                            .switchIfEmpty { MultipleEventResponse(res, null, isParticipant).toMono() }
                     }
             }
             .collectList()
-            .switchIfEmpty(emptyList<MultipleEventResponse>().toMono())
+            .switchIfEmpty { emptyList<MultipleEventResponse>().toMono() }
             .zipWith(eventDaoFacade.countAllAndAlcoholicIsNotBanned(alcoholicId))
             .map { allEventsResponse ->
                 val pagination = paginationService.createPagination(allEventsResponse.t2, page, pageSize)
