@@ -1,6 +1,5 @@
 package ru.buhinder.alcopartyservice.repository.facade
 
-import java.util.UUID
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Query
@@ -11,6 +10,7 @@ import reactor.kotlin.core.publisher.switchIfEmpty
 import ru.buhinder.alcopartyservice.controller.advice.exception.EntityNotFoundException
 import ru.buhinder.alcopartyservice.entity.EventEntity
 import ru.buhinder.alcopartyservice.repository.EventRepository
+import java.util.UUID
 
 @Repository
 class EventDaoFacade(
@@ -54,6 +54,18 @@ class EventDaoFacade(
 
     fun findByIdAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity> {
         return eventRepository.findByIdAndAlcoholicIsNotBanned(eventId, alcoholicId)
+    }
+
+    fun getByIdAndAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<EventEntity> {
+        return eventRepository.findByIdAndAlcoholicIsNotBanned(eventId, alcoholicId)
+            .switchIfEmpty {
+                Mono.error(
+                    EntityNotFoundException(
+                        message = NOT_FOUND_MESSAGE,
+                        payload = mapOf("id" to eventId)
+                    )
+                )
+            }
     }
 
     fun getByIdAndAlcoholicIsNotBannedAndStatusNotEnded(eventId: UUID, alcoholicId: UUID): Mono<EventEntity> {

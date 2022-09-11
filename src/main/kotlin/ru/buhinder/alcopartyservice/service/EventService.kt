@@ -7,7 +7,6 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
-import ru.buhinder.alcopartyservice.controller.advice.exception.EntityNotFoundException
 import ru.buhinder.alcopartyservice.dto.EventDto
 import ru.buhinder.alcopartyservice.dto.response.EventResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
@@ -102,7 +101,7 @@ class EventService(
     }
 
     fun getEventById(eventId: UUID, alcoholicId: UUID): Mono<SingleEventResponse> {
-        return eventDaoFacade.findByIdAndAlcoholicIsNotBanned(eventId, alcoholicId)
+        return eventDaoFacade.getByIdAndAlcoholicIsNotBanned(eventId, alcoholicId)
             .map { conversionService.convert(it, EventResponse::class.java)!! }
             .flatMap { res ->
                 eventPhotoDaoFacade.findAllByEventId(eventId)
@@ -115,13 +114,21 @@ class EventService(
                             .map { SingleEventResponse(res, photos, it) }
                     }
             }
-            .switchIfEmpty {
-                Mono.error(
-                    EntityNotFoundException(
-                        message = "Event not found",
-                        payload = mapOf("id" to eventId)
-                    )
-                )
+    }
+
+    fun getEventByLinkId(invitationLink: UUID): Mono<SingleEventResponse> {
+        return eventDaoFacade.getByInvitationLinkAndNotEnded(invitationLink)
+            .map { conversionService.convert(it, EventResponse::class.java)!! }
+            .flatMap { event ->
+                eventPhotoDaoFacade.findAllByEventId(event.id)
+                    .map { it.photoId }
+                    .collectList()
+                    .flatMap { photos ->
+                        eventAlcoholicDaoFacade.findAllByEventId(event.id)
+                            .map { it.alcoholicId }
+                            .collectList()
+                            .map { SingleEventResponse(event, photos, it) }
+                    }
             }
     }
 

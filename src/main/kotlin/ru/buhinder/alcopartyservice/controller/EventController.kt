@@ -112,4 +112,10 @@ class EventController(
             .map { ResponseEntity.ok(it) }
     }
 
+    @GetMapping("link/{invitationLink}")
+    fun getEventByLinkId(@PathVariable invitationLink: UUID): Mono<ResponseEntity<SingleEventResponse>> {
+        return eventService.getEventByLinkId(invitationLink)
+            .map { ResponseEntity.ok(it) }
+    }
+
 }
