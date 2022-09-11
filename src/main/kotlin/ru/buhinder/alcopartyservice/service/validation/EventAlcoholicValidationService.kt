@@ -3,6 +3,7 @@ package ru.buhinder.alcopartyservice.service.validation
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
+import reactor.kotlin.core.publisher.toMono
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
 import ru.buhinder.alcopartyservice.controller.advice.exception.EntityCannotBeUpdatedException
 import ru.buhinder.alcopartyservice.controller.advice.exception.InsufficientPermissionException
@@ -16,20 +17,20 @@ class EventAlcoholicValidationService(
     private val eventDaoFacade: EventDaoFacade,
 ) {
 
-    fun validateAlcoholicIsNotAlreadyParticipating(eventId: UUID, alcoholicId: UUID): Mono<Boolean> {
+    fun validateAlcoholicIsNotAlreadyParticipating(eventId: UUID, alcoholicId: UUID): Mono<UUID> {
         return eventAlcoholicDaoFacade.findByEventIdAndAlcoholicId(eventId = eventId, alcoholicId = alcoholicId)
             .flatMap {
-                Mono.error<Boolean>(
+                Mono.error<UUID>(
                     CannotJoinEventException(
                         message = "You are already participating in this event",
                         payload = mapOf("id" to eventId)
                     )
                 )
             }
-            .switchIfEmpty { Mono.just(true) }
+            .switchIfEmpty { Mono.just(eventId) }
     }
 
-    fun validateAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<Boolean> {
+    fun validateAlcoholicIsNotBanned(eventId: UUID, alcoholicId: UUID): Mono<UUID> {
         return eventAlcoholicDaoFacade.findByEventIdAndAlcoholicId(eventId = eventId, alcoholicId = alcoholicId)
             .map {
                 if (it.isBanned) {
@@ -38,9 +39,9 @@ class EventAlcoholicValidationService(
                         payload = mapOf("id" to eventId)
                     )
                 }
-                true
+                eventId
             }
-            .switchIfEmpty { Mono.just(true) }
+            .switchIfEmpty { eventId.toMono() }
     }
 
     fun validateAlcoholicIsAParticipant(eventId: UUID, alcoholicId: UUID): Mono<Boolean> {

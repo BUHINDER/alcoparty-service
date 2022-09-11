@@ -2,9 +2,11 @@ package ru.buhinder.alcopartyservice.service
 
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
+import ru.buhinder.alcopartyservice.entity.EventEntity
 import ru.buhinder.alcopartyservice.entity.InvitationLinkEntity
 import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
 import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
@@ -36,20 +38,25 @@ class InvitationLinkService(
         return invitationLinkValidationService.validateUsageAmountAndNotExpired(invitationLink)
             .flatMap { eventDaoFacade.getByInvitationLinkAndNotEnded(invitationLink) }
             .flatMap { event ->
-                val eventId = event.id!!
+                validate(event, alcoholicId)
+                    .flatMap { eventAlcoholicValidationService.validateAlcoholicIsNotBanned(it, alcoholicId) }
+                    .flatMap { eventAlcoholicValidationService.validateAlcoholicIsNotAlreadyParticipating(it, alcoholicId) }
+                    .flatMap { eventAlcoholicDaoFacade.insert(EventAlcoholicEntity(UUID.randomUUID(), it, alcoholicId)) }
+                    .flatMap { invitationLinkDaoFacade.decrementUsageAmount(invitationLink) }
+                    .map { IdResponse(event.id!!) }
+            }
+    }
+
+    private fun validate(event: EventEntity, alcoholicId: UUID): Mono<UUID> {
+        return event.toMono()
+            .map {
                 if (event.createdBy == alcoholicId) {
-                    return@flatMap Mono.error(
-                        CannotJoinEventException(
-                            message = "You cannot join your own event",
-                            payload = mapOf("id" to eventId)
-                        )
+                    throw CannotJoinEventException(
+                        message = "You cannot join your own event",
+                        payload = mapOf("id" to event.id!!)
                     )
                 }
-                eventAlcoholicValidationService.validateAlcoholicIsNotBanned(eventId, alcoholicId)
-                    .flatMap { eventAlcoholicValidationService.validateAlcoholicIsNotAlreadyParticipating(eventId, alcoholicId) }
-                    .flatMap { eventAlcoholicDaoFacade.insert(EventAlcoholicEntity(UUID.randomUUID(), eventId, alcoholicId)) }
-                    .flatMap { invitationLinkDaoFacade.decrementUsageAmount(invitationLink) }
-                    .map { IdResponse(eventId) }
+                event.id!!
             }
     }
 }
