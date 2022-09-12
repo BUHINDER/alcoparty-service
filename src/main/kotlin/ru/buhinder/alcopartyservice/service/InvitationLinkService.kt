@@ -69,7 +69,7 @@ class InvitationLinkService(
 
     fun getInvitationLinksByEventId(eventId: UUID, alcoholicId: UUID): Mono<InvitationLinksResponse> {
         return eventValidationService.validateIsEventCreator(Tuples.of(eventId, alcoholicId))
-            .flatMapMany { invitationLinkDaoFacade.getAllByEventId(it.t1) }
+            .flatMapMany { invitationLinkDaoFacade.findAllByEventId(it.t1) }
             .mapNotNull { conversionService.convert(it, InvitationLinkResponse::class.java)!! }
             .collectList()
             .map { InvitationLinksResponse(it) }
