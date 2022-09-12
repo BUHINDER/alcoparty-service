@@ -1,5 +1,6 @@
 package ru.buhinder.alcopartyservice.service.validation
 
+import java.util.UUID
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
@@ -7,9 +8,10 @@ import reactor.kotlin.core.publisher.toMono
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
 import ru.buhinder.alcopartyservice.controller.advice.exception.EntityCannotBeUpdatedException
 import ru.buhinder.alcopartyservice.controller.advice.exception.InsufficientPermissionException
+import ru.buhinder.alcopartyservice.entity.EventEntity
+import ru.buhinder.alcopartyservice.entity.enums.EventStatus
 import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
 import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
-import java.util.UUID
 
 @Service
 class EventAlcoholicValidationService(
@@ -76,6 +78,20 @@ class EventAlcoholicValidationService(
                 }
                 true
             }
+    }
+
+    fun validateEventNotEnded(eventEntity: EventEntity): Mono<EventEntity> {
+        return eventEntity.toMono()
+            .filter { it.endDate >= System.currentTimeMillis() }
+            .filter { it.status != EventStatus.ENDED }
+            .switchIfEmpty(
+                Mono.error(
+                    CannotJoinEventException(
+                        message = "This event has ended",
+                        payload = mapOf("id" to eventEntity.id.toString())
+                    )
+                )
+            )
     }
 
 }
