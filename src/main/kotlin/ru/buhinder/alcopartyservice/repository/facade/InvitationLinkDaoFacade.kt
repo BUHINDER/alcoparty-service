@@ -1,13 +1,14 @@
 package ru.buhinder.alcopartyservice.repository.facade
 
+import java.util.UUID
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.publisher.toMono
 import ru.buhinder.alcopartyservice.controller.advice.exception.EntityNotFoundException
 import ru.buhinder.alcopartyservice.entity.InvitationLinkEntity
 import ru.buhinder.alcopartyservice.repository.InvitationLinkRepository
-import java.util.UUID
 
 @Repository
 class InvitationLinkDaoFacade(
@@ -34,6 +35,10 @@ class InvitationLinkDaoFacade(
         return invitationLinkRepository.decrementUsageAmount(invitationLinkId)
             .map { invitationLinkId }
             .switchIfEmpty { invitationLinkId.toMono() }
+    }
+
+    fun findAllByEventIdOrderById(eventId: UUID): Flux<InvitationLinkEntity> {
+        return invitationLinkRepository.findAllByEventIdOrderById(eventId)
     }
 
 }

@@ -1,9 +1,16 @@
 package ru.buhinder.alcopartyservice.service
 
+import java.time.Duration
+import java.time.Instant
+import java.util.UUID
+import org.springframework.core.convert.ConversionService
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import reactor.util.function.Tuples
 import ru.buhinder.alcopartyservice.controller.advice.exception.CannotJoinEventException
+import ru.buhinder.alcopartyservice.dto.InvitationLinkResponse
+import ru.buhinder.alcopartyservice.dto.InvitationLinksResponse
 import ru.buhinder.alcopartyservice.dto.response.IdResponse
 import ru.buhinder.alcopartyservice.entity.EventAlcoholicEntity
 import ru.buhinder.alcopartyservice.entity.EventEntity
@@ -12,10 +19,8 @@ import ru.buhinder.alcopartyservice.repository.facade.EventAlcoholicDaoFacade
 import ru.buhinder.alcopartyservice.repository.facade.EventDaoFacade
 import ru.buhinder.alcopartyservice.repository.facade.InvitationLinkDaoFacade
 import ru.buhinder.alcopartyservice.service.validation.EventAlcoholicValidationService
+import ru.buhinder.alcopartyservice.service.validation.EventValidationService
 import ru.buhinder.alcopartyservice.service.validation.InvitationLinkValidationService
-import java.time.Duration
-import java.time.Instant
-import java.util.UUID
 
 @Service
 class InvitationLinkService(
@@ -24,6 +29,8 @@ class InvitationLinkService(
     private val invitationLinkDaoFacade: InvitationLinkDaoFacade,
     private val eventDaoFacade: EventDaoFacade,
     private val eventAlcoholicDaoFacade: EventAlcoholicDaoFacade,
+    private val eventValidationService: EventValidationService,
+    private val conversionService: ConversionService,
 ) {
 
     fun create(eventId: UUID, alcoholicId: UUID): Mono<IdResponse> {
@@ -58,5 +65,13 @@ class InvitationLinkService(
                 }
                 event.id!!
             }
+    }
+
+    fun getInvitationLinksByEventId(eventId: UUID, alcoholicId: UUID): Mono<InvitationLinksResponse> {
+        return eventValidationService.validateIsEventCreator(Tuples.of(eventId, alcoholicId))
+            .flatMapMany { invitationLinkDaoFacade.findAllByEventIdOrderById(it.t1) }
+            .mapNotNull { conversionService.convert(it, InvitationLinkResponse::class.java)!! }
+            .collectList()
+            .map { InvitationLinksResponse(it) }
     }
 }
