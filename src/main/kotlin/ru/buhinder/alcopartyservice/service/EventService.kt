@@ -1,5 +1,6 @@
 package ru.buhinder.alcopartyservice.service
 
+import java.util.UUID
 import org.springframework.core.convert.ConversionService
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
@@ -21,7 +22,6 @@ import ru.buhinder.alcopartyservice.repository.facade.EventPhotoDaoFacade
 import ru.buhinder.alcopartyservice.service.strategy.EventStrategyRegistry
 import ru.buhinder.alcopartyservice.service.validation.EventAlcoholicValidationService
 import ru.buhinder.alcopartyservice.service.validation.ImageValidationService
-import java.util.UUID
 
 @Service
 class EventService(
@@ -52,6 +52,7 @@ class EventService(
     fun join(eventId: UUID, alcoholicId: UUID): Mono<IdResponse> {
         return eventAlcoholicValidationService.validateAlcoholicIsNotBanned(eventId, alcoholicId)
             .flatMap { eventDaoFacade.getById(eventId) }
+            .flatMap { eventAlcoholicValidationService.validateEventNotEnded(it) }
             .flatMap { event ->
                 if (event.createdBy == alcoholicId) {
                     Mono.error(
