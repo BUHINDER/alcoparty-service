@@ -87,7 +87,7 @@ class EventAlcoholicValidationService(
             .switchIfEmpty(
                 Mono.error(
                     CannotJoinEventException(
-                        message = "Event was ended",
+                        message = "This event has ended",
                         payload = mapOf("id" to eventEntity.id.toString())
                     )
                 )
