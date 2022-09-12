@@ -1,10 +1,11 @@
 package ru.buhinder.alcopartyservice.repository
 
+import java.util.UUID
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.buhinder.alcopartyservice.entity.InvitationLinkEntity
-import java.util.UUID
 
 interface InvitationLinkRepository : ReactiveCrudRepository<InvitationLinkEntity, UUID> {
 
@@ -18,5 +19,7 @@ interface InvitationLinkRepository : ReactiveCrudRepository<InvitationLinkEntity
         """
     )
     fun decrementUsageAmount(invitationLinkId: UUID): Mono<Int>
+
+    fun getAllByEventId(eventID: UUID): Flux<InvitationLinkEntity>
 
 }
