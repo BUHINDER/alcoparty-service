@@ -37,8 +37,8 @@ class InvitationLinkDaoFacade(
             .switchIfEmpty { invitationLinkId.toMono() }
     }
 
-    fun findAllByEventId(eventId: UUID): Flux<InvitationLinkEntity> {
-        return invitationLinkRepository.findAllByEventId(eventId)
+    fun findAllByEventIdOrderById(eventId: UUID): Flux<InvitationLinkEntity> {
+        return invitationLinkRepository.findAllByEventIdOrderById(eventId)
     }
 
 }

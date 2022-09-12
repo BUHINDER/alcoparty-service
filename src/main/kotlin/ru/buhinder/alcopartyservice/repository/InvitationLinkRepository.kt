@@ -20,6 +20,6 @@ interface InvitationLinkRepository : ReactiveCrudRepository<InvitationLinkEntity
     )
     fun decrementUsageAmount(invitationLinkId: UUID): Mono<Int>
 
-    fun findAllByEventId(eventID: UUID): Flux<InvitationLinkEntity>
+    fun findAllByEventIdOrderById(eventID: UUID): Flux<InvitationLinkEntity>
 
 }
