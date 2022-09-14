@@ -10,17 +10,17 @@ data class EventDto(
     val alcoholicsIds: Set<UUID>,
 
     @field:NotBlank(message = "title is required")
-    @field:Size(min = 0, max = 50)
+    @field:Size(min = 1, max = 50)
     val title: String,
 
     @field:NotBlank(message = "info is required")
-    @field:Size(min = 0, max = 1000)
+    @field:Size(min = 1, max = 1000)
     val info: String,
 
     val type: EventType,
 
     @field:NotBlank(message = "location is required")
-    @field:Size(min = 0, max = 200)
+    @field:Size(min = 1, max = 200)
     val location: String,
 
     @field:NotNull(message = "startDate is required")
